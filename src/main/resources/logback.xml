@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<property name="loggingLevel" value="info" />
+<!--	<property name="loggingRoot" value="/data/logs/browser-manager" />-->
+	<property name="loggingRoot" value="/Users/dyzhao/Downloads/logs/browser-manager" />
+
+
+	<!-- [公共Appender] 控制台STDOUT -->
+	<appender name="STDOUT-APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder charset="UTF-8">
+			<!--%d日期格式；%p输出日志的优先级；%c所属类的全名；%l输出日志发生的位置，线程，代码行数；%m程序输出的信息；%n换行 -->
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %c:%L - %m%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- [公共Appender] 默认 -->
+	<appender name="DEFAULT-APPENDER"
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${loggingRoot}/browser-manager-info.log</File>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %-17c{2}:%L - %m%n
+			</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- %i产生1.log;2.log -->
+			<fileNamePattern>${loggingRoot}/browser-manager.%d{yyy-MM-dd}.%i.log.gz
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+					class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<!-- or whenever the file size reaches 1024MB -->
+				<maxFileSize>1024MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
+
+	<appender name ="async_DEFAULT-APPENDER" class= "ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold >3</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>512</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref ="DEFAULT-APPENDER"/>
+	</appender>
+
+	<!-- [公共Appender] 错误信息统计 -->
+	<appender name="ERROR-APPENDER"
+			  class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${loggingRoot}/browser-manager-error.log</File>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p [%t] %-17c{2}:%L - %m%n
+			</pattern>
+		</encoder>
+		<!-- 只打印错误日志 -->
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+		</filter>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- %i产生1.log;2.log -->
+			<fileNamePattern>${loggingRoot}/browser-manager-error.%d{yyy-MM-dd}.%i.log.gz
+			</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy
+					class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>1024MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+	</appender>
+
+	<appender name ="async_ERROR-APPENDER" class= "ch.qos.logback.classic.AsyncAppender">
+		<!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+		<discardingThreshold >3</discardingThreshold>
+		<!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+		<queueSize>512</queueSize>
+		<!-- 添加附加的appender,最多只能添加一个 -->
+		<appender-ref ref ="ERROR-APPENDER"/>
+	</appender>
+
+	<!-- [公共Logger] 控制台STDOUT - STDOUT -->
+	<logger name="STDOUT" additivity="true" level="${loggingLevel}">
+		<appender-ref ref="STDOUT-APPENDER" />
+	</logger>
+
+
+	<root level="${loggingLevel}">
+	    <appender-ref ref="STDOUT-APPENDER" />
+	    <appender-ref ref="ERROR-APPENDER" />
+		<appender-ref ref="async_DEFAULT-APPENDER" />
+		<appender-ref ref="async_ERROR-APPENDER" />
+	</root>
+
+</configuration>
